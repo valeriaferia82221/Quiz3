@@ -16,9 +16,9 @@ jobs:
       - name: Configurar Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.12'
+          python-version: "3.12"
 
-      - name: Instalar SAM CLI
+      - name: Instalar AWS SAM CLI
         run: |
           pip install aws-sam-cli
 
@@ -29,14 +29,17 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
 
-      - name: Build SAM
+      - name: Verificar identidad AWS
+        run: aws sts get-caller-identity
+
+      - name: Construir aplicación SAM
         run: sam build
 
-      - name: Deploy SAM
+      - name: Desplegar aplicación SAM
         run: |
           sam deploy \
+            --stack-name mi-lambda-stack \
+            --capabilities CAPABILITY_IAM \
             --no-confirm-changeset \
             --no-fail-on-empty-changeset \
-            --stack-name mi-stack \
-            --capabilities CAPABILITY_IAM \
             --resolve-s3
